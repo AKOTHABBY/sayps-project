@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}SAYPS Dashboard{% endblock %}</title>
+    <style>
+       :root {
+    --soil: #8c5a3c;
+    --leaf: #6a9b5e;
+    --leaf-light: #a3c98f;
+    --wheat: #f4d58d;
+    --cream: #fdf8f0;
+    --sidebar-w: 220px;
+}
+        
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            background-color: var(--cream);
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            color: #2e2a25;
+        }
+        .layout { display: flex; min-height: 100vh; }
+        .sidebar {
+    width: var(--sidebar-w);
+    background: linear-gradient(180deg, #a66f4d, #8c5a3c);
+    color: #e8dfd0;
+    padding: 20px 14px;
+    flex-shrink: 0;
+     display: flex;
+    flex-direction: column;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+    overflow-y: auto;
+}
+        .sidebar .brand {
+            color: var(--wheat);
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 28px;
+            padding-left: 6px;
+        }
+        .sidebar a {
+            display: block;
+            color: #cfc3ae;
+            text-decoration: none;
+            padding: 10px 12px;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            font-size: 0.92rem;
+        }
+        .sidebar a.active, .sidebar a:hover {
+            background-color: var(--leaf);
+            color: white;
+        }
+        .main { flex-grow: 1; padding: 28px 32px; }
+        .topbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+        .topbar h3 { margin: 0; color: var(--soil); }
+        .card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 4px 14px rgba(140, 90, 60, 0.08);
+}
+        .stat-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; margin-bottom: 20px; }
+        .stat-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: transform 0.15s ease, box-shadow 0.15s ease;
+        }
+        .stat-card:hover { transform: translateY(-3px); box-shadow: 0 8px 18px rgba(0,0,0,0.08); }
+        .stat-icon {
+            width: 44px; height: 44px;
+            border-radius: 50px;
+            background-color: #fbeedc;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.3rem;
+            flex-shrink: 0;
+        }
+        .stat-number { font-size: 1.6rem; font-weight: 700; color: var(--soil); line-height: 1.1; }
+        .stat-label { font-size: 0.8rem; color: #8a8178; }
+        .grid-2 { display: grid; grid-template-columns: 1.1fr 1fr; gap: 16px; margin-bottom: 20px; }
+        .badge { padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; color: white; }
+        table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+        thead th { text-align: left; padding: 8px 6px; color: #8a8178; font-weight: 600; border-bottom: 2px solid #eee; }
+        tbody td { padding: 9px 6px; border-bottom: 1px solid #f0ede7; }
+        .bar-grow { animation: growUp 0.8s ease-out; transform-origin: bottom; }
+        @keyframes growUp { from { transform: scaleY(0); } to { transform: scaleY(1); } }
+    </style>
+</head>
+<body>
+    <div class="layout">
+                <div class="sidebar">
+            <div class="brand">🌾 SAYPS</div>
+            <a href="/" class="{{ 'active' if request.path == '/' else '' }}">Dashboard</a>
+            <a href="/predictions" class="{{ 'active' if request.path == '/predictions' else '' }}">Predictions</a>
+            <a href="/farms" class="{{ 'active' if request.path == '/farms' else '' }}">Farm Registry</a>
+            <a href="/reports" class="{{ 'active' if request.path == '/reports' else '' }}">Reports</a>
+            <a href="/alerts" class="{{ 'active' if request.path == '/alerts' else '' }}">Alerts</a>
+{% if session.get('role') == 'admin' %}
+<a href="/users" class="{{ 'active' if request.path.startswith('/users') else '' }}">User Management</a>
+<a href="/settings" class="{{ 'active' if request.path == '/settings' else '' }}">Settings</a>
+<a href="/system/logs" class="{{ 'active' if request.path == '/system/logs' else '' }}">System Logs</a>
+<a href="/system/backups" class="{{ 'active' if request.path.startswith('/system/backups') else '' }}">Backups</a>
+{% endif %}
+           
+            <div style="padding: 14px; border-top: 1px solid rgba(255,255,255,0.15); margin-top: auto;">
+                <div style="font-size: 0.85rem; color: #e8dfd0; margin-bottom: 8px;">👤 {{ session.get('full_name', '') }}</div>
+                <a href="/logout" style="background: rgba(255,255,255,0.1); text-align: center;">Log out</a>
+            </div>
+        </div>
+        <div class="main">
+            <div class="topbar">
+                <h3>{% block pagetitle %}Overview{% endblock %}</h3>
+            </div>
+            {% block content %}{% endblock %}
+        </div>
+    </div>
+</body>
+</html>

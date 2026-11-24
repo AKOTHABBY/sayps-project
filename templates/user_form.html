@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ 'Edit user' if editing else 'Add user' }} — SAYPS{% endblock %}
+{% block pagetitle %}{{ 'Edit user' if editing else 'Add user' }}{% endblock %}
+
+{% block content %}
+<style>
+    .form-grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .form-grid label { display:block; font-size:0.85rem; color:#6b6258; margin-bottom:4px; }
+    .form-grid input, .form-grid select { width:100%; padding:10px; border:1px solid #ddd; border-radius:8px; font-size:0.95rem; }
+    .error-box { background:#fdecea; color:#c0392b; padding:10px 14px; border-radius:8px; margin-bottom:14px; }
+</style>
+<div class="card">
+    {% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+    <form method="POST">
+        <div class="form-grid">
+            <div><label>Full name</label><input name="full_name" value="{{ form.get('full_name', '') }}" required></div>
+            <div>
+                <label>Email</label>
+                {% if editing %}<input value="{{ form.get('email', '') }}" disabled>
+                {% else %}<input name="email" type="email" value="{{ form.get('email', '') }}" required>{% endif %}
+            </div>
+            <div>
+                <label>Phone number</label>
+                {% if editing %}<input value="{{ form.get('phone', '') }}" disabled>
+                {% else %}<input name="phone" placeholder="0712345678" value="{{ form.get('phone', '') }}" required>{% endif %}
+            </div>
+            <div>
+                <label>Role</label>
+                <select name="role">
+                    <option value="officer" {{ 'selected' if form.get('role') == 'officer' }}>Extension Officer</option>
+                    <option value="admin" {{ 'selected' if form.get('role') == 'admin' }}>Administrator</option>
+                </select>
+            </div>
+            <div>
+                <label>Assigned region (county)</label>
+                <select name="county">{% for c in counties %}<option {{ 'selected' if form.get('county') == c }}>{{ c }}</option>{% endfor %}</select>
+            </div>
+            {% if editing %}
+            <div>
+                <label>Status</label>
+                <select name="status">
+                    <option value="active" {{ 'selected' if form.get('status') == 'active' }}>Active</option>
+                    <option value="inactive" {{ 'selected' if form.get('status') == 'inactive' }}>Inactive</option>
+                </select>
+            </div>
+            {% endif %}
+        </div>
+        <div style="margin-top:20px;">
+            <button type="submit" style="background: var(--leaf); color:white; border:none; padding:10px 22px; border-radius:8px; cursor:pointer;">Save</button>
+            <a href="/users" style="margin-left:10px; color:#6b6258; text-decoration:none;">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

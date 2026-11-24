@@ -1,0 +1,110 @@
+{% extends "base.html" %}
+{% block title %}{{ farm.farm_name }} — SAYPS{% endblock %}
+{% block pagetitle %}{{ farm.farm_name }}{% endblock %}
+
+{% block content %}
+<style>
+    .info-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+    .info-grid .k { font-size: 0.78rem; color: #8a8178; }
+    .info-grid .v { font-weight: 600; color: var(--soil); }
+    .input-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .input-grid label { display: block; font-size: 0.8rem; color: #6b6258; margin-bottom: 4px; }
+    .input-grid input { width: 100%; padding: 9px; border: 1px solid #ddd; border-radius: 8px; }
+    .btn-main { background: var(--leaf); color: white; border: none; padding: 10px 22px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; }
+    .msg { padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; background: #eaf3ec; color: #2f6b3d; }
+    .note { padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; background: #fdf3df; color: #8a6420; font-size: 0.88rem; }
+    .result { background: #eaf3ec; border-left: 5px solid var(--leaf); }
+    summary { cursor: pointer; color: var(--leaf); font-size: 0.85rem; }
+</style>
+
+{% with messages = get_flashed_messages() %}
+  {% for m in messages %}<div class="msg">{{ m }}</div>{% endfor %}
+{% endwith %}
+
+<div class="card" style="margin-bottom:16px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h5 style="margin:0; color: var(--soil);">Farm details</h5>
+        <span>
+            <a href="/farms/{{ farm.farm_id }}/edit" style="color: var(--leaf);">Edit</a> &nbsp;|&nbsp;
+            <a href="/farms" style="color:#6b6258;">Back to Farm Registry</a>
+        </span>
+    </div>
+        <form method="POST" action="/farms/{{ farm.farm_id }}/link-phone"
+          style="margin-top:16px; display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+        <input name="phone" value="{{ farm.phone_number }}" required
+               style="padding:9px; border:1px solid #ddd; border-radius:8px; width:200px;">
+        <button class="btn-main" type="submit">Link phone</button>
+        <span class="k">Confirm the number the farmer will dial from.</span>
+    </form>
+    <div class="info-grid">
+        <div><div class="k">Farmer</div><div class="v">{{ farm.full_name }}</div></div>
+        <div><div class="k">Phone (USSD)</div><div class="v">{{ farm.phone_number }}</div></div>
+        <div><div class="k">County / sub-county</div><div class="v">{{ farm.county }} / {{ farm.sub_county }}</div></div>
+        <div><div class="k">Crop</div><div class="v">{{ farm.crop_type }}</div></div>
+        <div><div class="k">Acreage</div><div class="v">{{ farm.acreage }}</div></div>
+        <div><div class="k">Soil type</div><div class="v">{{ farm.soil_type or '-' }}</div></div>
+    </div>
+</div>
+
+{% if latest %}
+<div class="card result" style="margin-bottom:16px;">
+    <h5 style="margin-top:0; color: var(--soil);">Prediction saved</h5>
+    <div style="font-size:1.6rem; font-weight:700; color: var(--soil);">{{ latest.predicted_yield_kg_ha }} kg/ha</div>
+    <div style="margin:4px 0 8px;">About {{ latest.bags }} bags per acre</div>
+    <div>{{ latest.recommendation_text }}</div>
+</div>
+{% endif %}
+
+<div class="card" style="margin-bottom:16px;">
+    <h5 style="margin-top:0; color: var(--soil);">Request prediction</h5>
+    {% if used_defaults %}
+    <div class="note">This farm has no weather, soil or satellite records yet, so some boxes hold averages from all farms. Replace them with real values if you have them.</div>
+    {% endif %}
+    <form method="POST">
+        <div class="input-grid">
+            {% for key, text_label in fields %}
+            <div>
+                <label>{{ text_label }}</label>
+                <input name="{{ key }}" type="number" step="any" value="{{ defaults[key] }}" required>
+            </div>
+            {% endfor %}
+        </div>
+        <div style="margin-top:16px;"><button class="btn-main" type="submit">Submit</button></div>
+    </form>
+</div>
+
+<div class="card">
+    <h5 style="margin-top:0; color: var(--soil);">History</h5>
+    <table>
+        <thead>
+            <tr><th>Date</th><th>Yield (kg/ha)</th><th>Bags per acre</th><th>Channel</th><th>Status</th></tr>
+        </thead>
+        <tbody>
+            {% for h in history %}
+            <tr>
+                <td>{{ h.created_at }}</td>
+                <td>{{ h.predicted_yield_kg_ha }}</td>
+                <td>{{ h.bags }}</td>
+                <td>{{ h.channel }}</td>
+                <td>
+                    {% if h.suspect %}
+                        <span class="badge" style="background-color:#d9a441;">Flagged</span>
+                    {% else %}
+                        <details>
+                            <summary>Report suspect prediction</summary>
+                            <form method="POST" action="/predictions/{{ h.prediction_id }}/suspect" style="margin-top:6px;">
+                                <input name="note" placeholder="What looks wrong?" required
+                                       style="padding:6px; border:1px solid #ddd; border-radius:6px;">
+                                <button type="submit" style="padding:6px 12px; border:none; background: var(--leaf); color:white; border-radius:6px; cursor:pointer;">Send</button>
+                            </form>
+                        </details>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="color:#8a8178;">No predictions yet for this farm.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

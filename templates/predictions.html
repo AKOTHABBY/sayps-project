@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Predictions — SAYPS{% endblock %}
+{% block pagetitle %}Predictions{% endblock %}
+
+{% block content %}
+<div class="card">
+    <h5 style="margin-top:0; color: var(--soil);">All saved predictions</h5>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th><th>Farm</th><th>Crop</th><th>Predicted yield (kg/ha)</th><th>Channel</th><th>Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in predictions %}
+            <tr>
+                <td>{{ p.prediction_id }}</td>
+                <td>{{ p.farm_name }}</td>
+                <td>{{ p.crop_type }}</td>
+                <td>{{ p.predicted_yield_kg_ha }}</td>
+                <td>{{ p.channel }}</td>
+                <td>{{ p.created_at }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

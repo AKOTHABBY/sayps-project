@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block title %}Reports — SAYPS{% endblock %}
+{% block pagetitle %}Reports{% endblock %}
+
+{% block content %}
+<style>
+    .filters { display:flex; gap:10px; flex-wrap:wrap; align-items:center; }
+    .filters select, .filters input { padding:9px; border:1px solid #ddd; border-radius:8px; }
+    .btn-g { background: var(--leaf); color:white; border:none; padding:9px 18px; border-radius:8px; cursor:pointer; text-decoration:none; font-size:0.9rem; display:inline-block; }
+    @media print {
+        .sidebar, .no-print { display:none !important; }
+        .main { padding:0; }
+        .card { box-shadow:none; }
+    }
+</style>
+
+<div class="card no-print" style="margin-bottom:16px;">
+    <form method="GET" class="filters">
+        <select name="crop">
+            <option value="">All crops</option>
+            {% for c in crops %}<option {{ 'selected' if f.crop == c }}>{{ c }}</option>{% endfor %}
+        </select>
+        {% if is_admin %}
+        <select name="county">
+            <option value="">All counties</option>
+            {% for c in counties %}<option {{ 'selected' if f.county == c }}>{{ c }}</option>{% endfor %}
+        </select>
+        {% endif %}
+        <input type="date" name="start" value="{{ f.start }}" title="From">
+        <input type="date" name="end" value="{{ f.end }}" title="To">
+        <button class="btn-g" type="submit">Generate</button>
+        <a href="/reports" style="color:#6b6258;">Clear</a>
+    </form>
+    <div style="margin-top:12px; display:flex; gap:10px; flex-wrap:wrap;">
+        <a class="btn-g" href="/reports/export.csv?{{ qs }}">Export CSV</a>
+        <button class="btn-g" type="button" onclick="window.print()">Export PDF</button>
+        {% if is_admin %}<a class="btn-g" href="/reports/activity">User Activity</a>{% endif %}
+    </div>
+</div>
+
+<p style="color:#6b6258; font-size:0.88rem;">
+    {{ total }} farm records in this report. Low-yield means below {{ threshold|int }} kg/ha.
+    {% if not is_admin %}Showing your region only.{% else %}Consolidated across all regions you filter.{% endif %}
+</p>
+
+<div class="grid-2">
+    <div class="card">
+        <h5 style="margin-top:0; color: var(--soil);">Summary by county</h5>
+        <table>
+            <thead>
+                <tr><th>County</th><th>Farms</th><th>Avg actual yield</th><th>Avg predicted</th><th>Low-yield</th></tr>
+            </thead>
+            <tbody>
+                {% for r in by_county %}
+                <tr>
+                    <td>{{ r.county }}</td><td>{{ r.farms }}</td><td>{{ r.avg_yield }}</td>
+                    <td>{{ r.avg_pred if r.avg_pred is not none else '-' }}</td><td>{{ r.low_count }}</td>
+                </tr>
+                {% else %}
+                <tr><td colspan="5" style="color:#8a8178;">No records match these filters.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    <div class="card">
+        <h5 style="margin-top:0; color: var(--soil);">Summary by crop</h5>
+        <table>
+            <thead>
+                <tr><th>Crop</th><th>Farms</th><th>Avg yield (kg/ha)</th><th>Low-yield</th></tr>
+            </thead>
+            <tbody>
+                {% for r in by_crop %}
+                <tr><td>{{ r.crop_type }}</td><td>{{ r.farms }}</td><td>{{ r.avg_yield }}</td><td>{{ r.low_count }}</td></tr>
+                {% else %}
+                <tr><td colspan="4" style="color:#8a8178;">No records match these filters.</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block title %}Alert history — SAYPS{% endblock %}
+{% block pagetitle %}Alert history{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h5 style="margin:0; color: var(--soil);">Resolved alerts</h5>
+        <a href="/alerts" style="color: var(--leaf);">Back to open alerts</a>
+    </div>
+    <table>
+        <thead>
+            <tr><th>Farm</th><th>Farmer</th><th>County</th><th>Crop</th><th>Yield (kg/ha)</th><th>Raised</th><th>Resolved</th></tr>
+        </thead>
+        <tbody>
+            {% for a in alerts %}
+            <tr>
+                <td>{{ a.farm_name }}</td>
+                <td>{{ a.full_name }}</td>
+                <td>{{ a.county }}</td>
+                <td>{{ a.crop_type }}</td>
+                <td>{{ a.yield_value }}</td>
+                <td>{{ a.created_at }}</td>
+                <td>{{ a.resolved_at }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="color:#8a8178;">No resolved alerts yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

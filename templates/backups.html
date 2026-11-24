@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Backups — SAYPS{% endblock %}
+{% block pagetitle %}Backups{% endblock %}
+
+{% block content %}
+<div class="card">
+    {% with messages = get_flashed_messages() %}
+      {% for m in messages %}
+      <div style="background:#eaf3ec; color:#2f6b3d; padding:10px 14px; border-radius:8px; margin-bottom:14px;">{{ m }}</div>
+      {% endfor %}
+    {% endwith %}
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <div>
+            <h5 style="margin:0 0 4px; color: var(--soil);">Database backups</h5>
+            <div style="color:#6b6258; font-size:0.9rem;">
+                Last backup: {{ last if last else 'none yet' }}
+            </div>
+        </div>
+        <form method="POST" action="/system/backups/run">
+            <button type="submit" style="background: var(--leaf); color:white; border:none; padding:10px 20px; border-radius:8px; cursor:pointer;">Back up now</button>
+        </form>
+    </div>
+    {% if stale %}
+    <div style="background:#fdecea; color:#c0392b; padding:10px 14px; border-radius:8px; margin-bottom:14px;">
+        The last backup is more than 24 hours old (or there is none). Run a backup now and contact the project team.
+    </div>
+    {% endif %}
+    <table>
+        <thead><tr><th>File</th><th>Size (KB)</th><th>Created</th><th></th></tr></thead>
+        <tbody>
+            {% for f in files %}
+            <tr>
+                <td>{{ f.name }}</td><td>{{ f.size_kb }}</td><td>{{ f.when }}</td>
+                <td><a href="/system/backups/{{ f.name }}" style="color: var(--leaf);">Download</a></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" style="color:#8a8178;">No backups yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <p style="color:#8a8178; font-size:0.85rem; margin-top:14px;">The newest 14 backups are kept. To restore one, open the file in MySQL Workbench and run it.</p>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}System Logs — SAYPS{% endblock %}
+{% block pagetitle %}System Logs{% endblock %}
+
+{% block content %}
+{% set colors = {'login':'#4a7c59','login_failed':'#c0392b','login_blocked':'#c0392b','logout':'#999','prediction':'#6a9b5e','error':'#c0392b','backup':'#8c5a3c'} %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+        <h5 style="margin:0; color: var(--soil);">Last 90 days (read-only, newest 300)</h5>
+        <form method="GET" style="display:flex; gap:10px;">
+            <select name="type" style="padding:8px; border:1px solid #ddd; border-radius:8px;">
+                <option value="">All events</option>
+                {% for t in ['login','login_failed','login_blocked','logout','prediction','error','backup'] %}
+                <option value="{{ t }}" {{ 'selected' if kind == t }}>{{ t }}</option>
+                {% endfor %}
+            </select>
+            <button type="submit" style="background: var(--leaf); color:white; border:none; padding:8px 16px; border-radius:8px; cursor:pointer;">Filter</button>
+        </form>
+    </div>
+    <table>
+        <thead><tr><th>Time</th><th>Event</th><th>User</th><th>Details</th></tr></thead>
+        <tbody>
+            {% for r in rows %}
+            <tr>
+                <td style="white-space:nowrap;">{{ r.created_at }}</td>
+                <td><span class="badge" style="background-color:{{ colors.get(r.event_type, '#999') }};">{{ r.event_type }}</span></td>
+                <td>{{ r.actor }}</td>
+                <td>{{ r.details }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" style="color:#8a8178;">No log entries match.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

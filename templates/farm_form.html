@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}{{ page_title or 'Add farm' }} — SAYPS{% endblock %}
+{% block pagetitle %}{{ page_title or 'Add farm' }}{% endblock %}
+
+{% block content %}
+<style>
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .form-grid label { display: block; font-size: 0.85rem; color: #6b6258; margin-bottom: 4px; }
+    .form-grid input, .form-grid select {
+        width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem;
+    }
+    .btn-save { background: var(--leaf); color: white; border: none; padding: 10px 22px; border-radius: 8px; cursor: pointer; font-size: 0.95rem; }
+    .btn-cancel { margin-left: 10px; color: #6b6258; text-decoration: none; }
+    .error-box { background: #fdecea; color: #c0392b; padding: 10px 14px; border-radius: 8px; margin-bottom: 14px; }
+</style>
+
+<div class="card">
+    {% if error %}<div class="error-box">{{ error }}</div>{% endif %}
+    <form method="POST">
+        <div class="form-grid">
+            <div><label>Farmer's full name</label><input name="farmer_name" value="{{ form.get('farmer_name', '') }}" required></div>
+            <div><label>Phone number</label><input name="phone" placeholder="0712345678" value="{{ form.get('phone', '') }}" required></div>
+            <div><label>Farm name</label><input name="farm_name" value="{{ form.get('farm_name', '') }}" required></div>
+            <div>
+                <label>County</label>
+                {% if is_officer %}
+                    <input value="{{ officer_county }}" disabled>
+                {% else %}
+                    <select name="county">{% for c in counties %}<option {{ 'selected' if form.get('county') == c }}>{{ c }}</option>{% endfor %}</select>
+                {% endif %}
+            </div>
+            <div><label>Sub-county</label><input name="sub_county" value="{{ form.get('sub_county', '') }}" required></div>
+            <div><label>Primary crop</label><select name="crop_type">{% for c in crops %}<option {{ 'selected' if form.get('crop_type') == c }}>{{ c }}</option>{% endfor %}</select></div>
+            <div><label>Latitude</label><input name="latitude" type="number" step="0.000001" placeholder="-0.303" value="{{ form.get('latitude', '') }}" required></div>
+            <div><label>Longitude</label><input name="longitude" type="number" step="0.000001" placeholder="36.080" value="{{ form.get('longitude', '') }}" required></div>
+            <div><label>Soil type</label><select name="soil_type">{% for s in soils %}<option {{ 'selected' if form.get('soil_type') == s }}>{{ s }}</option>{% endfor %}</select></div>
+            <div><label>Acreage</label><input name="acreage" type="number" step="0.01" min="0.1" value="{{ form.get('acreage', '') }}" required></div>
+        </div>
+        <div style="margin-top:20px;">
+            <button class="btn-save" type="submit">Save</button>
+            <a class="btn-cancel" href="/farms">Cancel</a>
+        </div>
+        <div style="margin-top:16px;">
+    <label style="display:block; font-size:0.85rem; color:#6b6258; margin-bottom:4px;">Or click the map to set the farm location</label>
+    <div id="map" style="height:300px; border-radius:10px; border:1px solid #ddd; background:#f3efe8;"></div>
+    <div id="map-note" style="font-size:0.8rem; color:#8a8178; margin-top:4px;">Click anywhere on the map. The latitude and longitude boxes fill in automatically.</div>
+</div>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(function () {
+    var latBox = document.querySelector('[name=latitude]');
+    var lngBox = document.querySelector('[name=longitude]');
+    if (typeof L === 'undefined') {
+        document.getElementById('map-note').textContent = 'The map could not load on this network. Type the latitude and longitude instead.';
+        return;
+    }
+    var startLat = parseFloat(latBox.value), startLng = parseFloat(lngBox.value);
+    var hasStart = !isNaN(startLat) && !isNaN(startLng);
+    var map = L.map('map').setView(hasStart ? [startLat, startLng] : [-0.3, 35.6], hasStart ? 13 : 8);
+    L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        maxZoom: 18, attribution: '&copy; OpenStreetMap contributors'
+    }).addTo(map);
+    var marker = hasStart ? L.marker([startLat, startLng]).addTo(map) : null;
+
+    function place(lat, lng) {
+        if (marker) { marker.setLatLng([lat, lng]); } else { marker = L.marker([lat, lng]).addTo(map); }
+    }
+    map.on('click', function (e) {
+        latBox.value = e.latlng.lat.toFixed(6);
+        lngBox.value = e.latlng.lng.toFixed(6);
+        place(e.latlng.lat, e.latlng.lng);
+    });
+    function fromBoxes() {
+        var la = parseFloat(latBox.value), ln = parseFloat(lngBox.value);
+        if (!isNaN(la) && !isNaN(ln)) { place(la, ln); map.setView([la, ln], 13); }
+    }
+    latBox.addEventListener('change', fromBoxes);
+    lngBox.addEventListener('change', fromBoxes);
+})();
+</script>
+    </form>
+</div>
+{% endblock %}

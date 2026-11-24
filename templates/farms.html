@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% block title %}Farm Registry — SAYPS{% endblock %}
+{% block pagetitle %}Farm Registry{% endblock %}
+
+{% block content %}
+<div class="card">
+    {% with messages = get_flashed_messages() %}
+  {% for m in messages %}
+  <div style="background:#eaf3ec; color:#2f6b3d; padding:10px 14px; border-radius:8px; margin-bottom:14px;">{{ m }}</div>
+  {% endfor %}
+{% endwith %}
+<div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+    <h5 style="margin:0; color: var(--soil);">Registered farms</h5>
+    <a href="/farms/add" style="background: var(--leaf); color:white; padding:8px 16px; border-radius:8px; text-decoration:none; font-size:0.9rem;">+ Add farm</a>
+</div>
+
+<form method="GET" style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:16px;">
+    <input name="q" placeholder="Search farmer, phone or sub-county" value="{{ q }}"
+           style="flex:1; min-width:220px; padding:9px; border:1px solid #ddd; border-radius:8px;">
+    <select name="crop" style="padding:9px; border:1px solid #ddd; border-radius:8px;">
+        <option value="">All crops</option>
+        {% for c in crops %}<option {{ 'selected' if crop == c }}>{{ c }}</option>{% endfor %}
+    </select>
+    <input type="date" name="since" value="{{ since }}" title="Registered since"
+           style="padding:9px; border:1px solid #ddd; border-radius:8px;">
+    <button type="submit" style="background: var(--leaf); color:white; border:none; padding:9px 18px; border-radius:8px; cursor:pointer;">Filter</button>
+    <a href="/farms" style="align-self:center; color:#6b6258;">Clear</a>
+</form>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th><th>Farm</th><th>Farmer</th><th>Phone</th><th>County</th><th>Crop</th><th>Acreage</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for f in farms %}
+            <tr>
+                <td>{{ f.farm_id }}</td>
+                <td><a href="/farms/{{ f.farm_id }}" style="color: var(--soil); font-weight:600; text-decoration:none;">{{ f.farm_name }}</a></td>
+                <td>{{ f.full_name }}</td>
+                <td>{{ f.phone_number }}</td>
+                <td>{{ f.county }}</td>
+                <td>{{ f.crop_type }}</td>
+                <td>{{ f.acreage }}</td>
+                <td><a href="/farms/{{ f.farm_id }}/edit" style="color: var(--leaf);">Edit</a></td>
+                
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Alerts — SAYPS{% endblock %}
+{% block pagetitle %}Alerts{% endblock %}
+
+{% block content %}
+<div class="card">
+    {% with messages = get_flashed_messages() %}
+      {% for m in messages %}
+      <div style="background:#eaf3ec; color:#2f6b3d; padding:10px 14px; border-radius:8px; margin-bottom:14px;">{{ m }}</div>
+      {% endfor %}
+    {% endwith %}
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h5 style="margin:0; color: var(--soil);">Open alerts ({{ total }}) &mdash; yield below {{ threshold|int }} kg/ha</h5>
+        <a href="/alerts/history" style="color: var(--leaf);">View history</a>
+    </div>
+    <table>
+        <thead>
+            <tr><th>Farm</th><th>Farmer</th><th>Phone</th><th>County</th><th>Crop</th><th>Yield (kg/ha)</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for a in alerts %}
+            <tr>
+                <td>{{ a.farm_name }}</td>
+                <td>{{ a.full_name }}</td>
+                <td>{{ a.phone_number }}</td>
+                <td>{{ a.county }}</td>
+                <td>{{ a.crop_type }}</td>
+                <td><span class="badge" style="background-color:#c0392b;">{{ a.yield_value }}</span></td>
+                <td style="white-space:nowrap;">
+    <form method="POST" action="/alerts/{{ a.alert_id }}/sms" style="display:inline; margin:0;">
+        <button type="submit" style="background:#8c5a3c; color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer;">{{ 'Resend SMS' if a.sms_sent else 'Send SMS' }}</button>
+    </form>
+    <form method="POST" action="/alerts/{{ a.alert_id }}/resolve" style="display:inline; margin:0;">
+        <button type="submit" style="background: var(--leaf); color:white; border:none; padding:6px 12px; border-radius:6px; cursor:pointer;">Mark resolved</button>
+    </form>
+</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="7" style="color:#8a8178;">No open alerts. Good news.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

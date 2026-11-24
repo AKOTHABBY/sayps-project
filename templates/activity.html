@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}User Activity — SAYPS{% endblock %}
+{% block pagetitle %}User Activity{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h5 style="margin:0; color: var(--soil);">Predictions requested, by user and channel</h5>
+        <a href="/reports" style="color: var(--leaf);">Back to Reports</a>
+    </div>
+    <table>
+        <thead>
+            <tr><th>User</th><th>Role</th><th>Channel</th><th>Predictions</th><th>Last active</th></tr>
+        </thead>
+        <tbody>
+            {% for r in rows %}
+            <tr>
+                <td>{{ r.full_name }}</td><td>{{ r.role }}</td><td>{{ r.channel }}</td>
+                <td>{{ r.predictions }}</td><td>{{ r.last_active }}</td>
+            </tr>
+            {% else %}
+            <tr><td colspan="5" style="color:#8a8178;">No activity yet.</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

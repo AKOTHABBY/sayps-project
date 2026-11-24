@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% block title %}Settings — SAYPS{% endblock %}
+{% block pagetitle %}Settings{% endblock %}
+
+{% block content %}
+<div class="card">
+    {% with messages = get_flashed_messages() %}
+      {% for m in messages %}
+      <div style="background:#eaf3ec; color:#2f6b3d; padding:10px 14px; border-radius:8px; margin-bottom:14px;">{{ m }}</div>
+      {% endfor %}
+    {% endwith %}
+    <form method="POST">
+        <label style="display:block; font-size:0.85rem; color:#6b6258; margin-bottom:4px;">Alert threshold (kg/ha). Farms below this yield raise an alert.</label>
+        <input name="alert_threshold" type="number" step="any" value="{{ threshold }}" required
+               style="padding:10px; border:1px solid #ddd; border-radius:8px; width:220px; margin-bottom:18px;">
+
+        <label style="display:block; font-size:0.85rem; color:#6b6258; margin-bottom:4px;">Supported regions (counties), separated by commas</label>
+        <input name="regions" value="{{ regions }}" required
+               style="padding:10px; border:1px solid #ddd; border-radius:8px; width:100%; margin-bottom:18px;">
+
+        <label style="display:block; font-size:0.85rem; color:#6b6258; margin-bottom:4px;">Supported crops (fixed by the trained model)</label>
+        <div style="margin-bottom:18px;">{{ crops|join(', ') }}</div>
+
+        <label style="display:block; font-size:0.85rem; color:#6b6258; margin-bottom:4px;">Backup schedule</label>
+        <div style="margin-bottom:20px;">Nightly database backup (managed outside the app)</div>
+
+        <button type="submit" style="background: var(--leaf); color:white; border:none; padding:10px 22px; border-radius:8px; cursor:pointer;">Save settings</button>
+    </form>
+</div>
+{% endblock %}

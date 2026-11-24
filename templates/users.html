@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}User Management — SAYPS{% endblock %}
+{% block pagetitle %}User Management{% endblock %}
+
+{% block content %}
+<div class="card">
+    {% with messages = get_flashed_messages() %}
+      {% for m in messages %}
+      <div style="background:#fdf3df; color:#8a6420; padding:10px 14px; border-radius:8px; margin-bottom:14px; font-weight:600;">{{ m }}</div>
+      {% endfor %}
+    {% endwith %}
+    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <h5 style="margin:0; color: var(--soil);">Administrators and extension officers</h5>
+        <a href="/users/add" style="background: var(--leaf); color:white; padding:8px 16px; border-radius:8px; text-decoration:none; font-size:0.9rem;">+ Add user</a>
+    </div>
+    <form method="GET" style="display:flex; gap:10px; margin-bottom:14px;">
+        <input name="q" placeholder="Search name, region or email" value="{{ q }}"
+               style="flex:1; padding:9px; border:1px solid #ddd; border-radius:8px;">
+        <button type="submit" style="background: var(--leaf); color:white; border:none; padding:9px 18px; border-radius:8px; cursor:pointer;">Search</button>
+        <a href="/users" style="align-self:center; color:#6b6258;">Clear</a>
+    </form>
+    <table>
+        <thead>
+            <tr><th>Name</th><th>Email</th><th>Phone</th><th>Role</th><th>Region</th><th>Status</th><th></th></tr>
+        </thead>
+        <tbody>
+            {% for u in users %}
+            <tr>
+                <td>{{ u.full_name }}</td><td>{{ u.email }}</td><td>{{ u.phone_number }}</td>
+                <td>{{ u.role }}</td><td>{{ u.county }}</td>
+                <td>
+                    {% if u.status == 'active' %}
+                        <span class="badge" style="background-color:#4a7c59;">Active</span>
+                    {% else %}
+                        <span class="badge" style="background-color:#999;">Inactive</span>
+                    {% endif %}
+                </td>
+                <td style="white-space:nowrap;">
+                    <a href="/users/{{ u.user_id }}/edit" style="color: var(--leaf);">Edit</a>
+                    <form method="POST" action="/users/{{ u.user_id }}/reset-password" style="display:inline;"
+                          onsubmit="return confirm('Reset this user\'s password?');">
+                        <button type="submit" style="background:none; border:none; color:#8a6420; cursor:pointer; text-decoration:underline; font-size:0.88rem;">Reset password</button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
